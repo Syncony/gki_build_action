@@ -19,11 +19,6 @@ on:
         required: true
         type: boolean
         default: false
-      ssg:
-        description: '是否启用SSG IO调度器支持(提升IO读写性能)'
-        required: true
-        type: boolean
-        default: false
       lxc:
         description: '是否启用lxc支持(部分设备可能不开机)'
         required: true
@@ -178,15 +173,6 @@ jobs:
           curl -fLSs "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/patches/stock_config.patch" -o stock_config.patch
           patch -p1 --fuzz=3 < stock_config.patch
 
-      - name: Config SSG I/O scheduler
-        if: ${{ !inputs.ssg }}
-        run: |
-          echo "Disabling SSG I/O scheduler"
-          source /tmp/config.sh
-          config --disable CONFIG_MQ_IOSCHED_SSG
-          config --disable CONFIG_MQ_IOSCHED_SSG_CGROUP
-          config --disable CONFIG_MQ_SSG_DEFAULT
-          
       - name: 添加lxc
         if: inputs.lxc
         run: |
@@ -353,7 +339,6 @@ jobs:
           CHAT_ID: ${{ secrets.CHAT_ID }}
           BOT_CI_SESSION: ${{ secrets.BOT_CI_SESSION }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          SSG: ${{ inputs.ssg }}
           STOCK_CONFIG: ${{ inputs.stock_config }}
           LXC: ${{ inputs.lxc }}
           BBG: ${{ inputs.baseband_guard }}

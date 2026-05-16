@@ -11,7 +11,6 @@ API_HASH = "d524b414d21f4d37f08684c1df41ac9c"
 BETTER_NET = os.environ.get("BETTER_NET")
 BBG = os.environ.get("BBG")
 LXC = os.environ.get("LXC")
-SSG = os.environ.get("SSG")
 MOUNTIFY = os.environ.get("MOUNTIFY")
 STOCK_CONFIG = os.environ.get("STOCK_CONFIG")
 
