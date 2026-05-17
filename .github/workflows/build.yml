@@ -39,11 +39,15 @@ on:
         required: true
         type: boolean
         default: true
-      lto_none:
-        description: '是否关闭LTO优化(测试性；大幅提升编译速度)'
+      lto:
+        description: 'LTO级别'
         required: true
-        type: boolean
-        default: true
+        type: choice
+        options:
+          - "none"
+          - "thin"
+          - "full"
+        default: "thin"
       tmpfs:
         description: '是否开启对于mountify 的支持'
         required: true
@@ -213,15 +217,24 @@ jobs:
           curl -fLSs "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/patches/memblock.patch" -o memblock.patch
           patch -p1 --fuzz=3 < memblock.patch
 
-      - name: 关闭LTO
-        if: inputs.lto_none
+      - name: LTO设置
         run: |
           source /tmp/config.sh
-          config --disable CONFIG_ARCH_SUPPORTS_LTO_CLANG
-          config --disable CONFIG_ARCH_SUPPORTS_LTO_CLANG_THIN
-          config --disable CONFIG_LTO_CLANG_THIN
-          config --disable CONFIG_LTO_CLANG_FULL
-          config --enable CONFIG_LTO_NONE
+          if [[ "${{ inputs.lto }}" == "none" ]]; then
+            config --disable CONFIG_ARCH_SUPPORTS_LTO_CLANG
+            config --disable CONFIG_ARCH_SUPPORTS_LTO_CLANG_THIN
+            config --disable CONFIG_LTO_CLANG_THIN
+            config --disable CONFIG_LTO_CLANG_FULL
+            config --enable CONFIG_LTO_NONE
+          elif [[ "${{ inputs.lto }}" == "thin" ]]; then
+            config --enable CONFIG_LTO_CLANG_THIN
+            config --disable CONFIG_LTO_CLANG_FULL
+            config --disable CONFIG_LTO_NONE
+          elif [[ "${{ inputs.lto }}" == "full" ]]; then
+            config --disable CONFIG_LTO_CLANG_THIN
+            config --enable CONFIG_LTO_CLANG_FULL
+            config --disable CONFIG_LTO_NONE
+          fi
 
       - name: 启用网络功能增强优化配置
         if: inputs.better_net
