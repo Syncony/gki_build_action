@@ -13,6 +13,7 @@ BBG = os.environ.get("BBG")
 LXC = os.environ.get("LXC")
 MOUNTIFY = os.environ.get("MOUNTIFY")
 STOCK_CONFIG = os.environ.get("STOCK_CONFIG")
+DROIDSPACES = os.environ.get("DROIDSPACES")
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = int(os.environ.get("CHAT_ID"))
@@ -26,9 +27,10 @@ stock: {stock}
 BBG: {bbg}
 Mountify support: {mountify}
 lxc/docker support {lxc}
+droidspaces: {droidspaces}
 better net support: {better_net}
 ```
-Please follow @@esk_gki_build !
+Please follow @esk_gki_build !
 #GKI2 #ESK
 [Workflow run]({run_url})
 """.strip()
@@ -40,6 +42,7 @@ def get_caption():
         stock=STOCK_CONFIG,
         mountify=MOUNTIFY,
         lxc=LXC,
+        droidspaces=DROIDSPACES,
         bbg=BBG,
         better_net=BETTER_NET,
         run_url=RUN_URL,
