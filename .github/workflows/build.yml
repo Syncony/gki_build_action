@@ -216,6 +216,10 @@ jobs:
           config --enable CONFIG_PID_NS
           config --enable CONFIG_UTS_NS
           config --enable CONFIG_CGROUP_NS
+          config --enable CONFIG_SYSVIPC
+          cd kernel_workspace/common
+          curl -fLSs "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/patches/fix-sysvipc-kabi.patch" -o fix-sysvipc-kabi.patch
+          patch -p1 --forward --fuzz=3 < fix-sysvipc-kabi.patch
           
       - name: 支持mountify/hybrid的tmpfs模式
         if: inputs.tmpfs
