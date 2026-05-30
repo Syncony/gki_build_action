@@ -4,7 +4,7 @@ env:
   TZ: Asia/Shanghai
   ANDROID_VERSION: 'android12'
   KERNEL_VERSION: '5.10'
-  KERNEL_NAME: 'localhost-Hutao'
+  KERNEL_NAME: 'android12-9-2ad83c3fdecb0-d8e4288b87'
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ on:
         description: '是否开启网络功能拓展配置(用于为ipset及需要iptables等高级网络功能内核支持的程序提供支持)'
         required: true
         type: boolean
-        default: false
+        default: true
       droidspaces:
         description: "Droidspaces 容器支持"
         required: false
@@ -100,7 +100,7 @@ jobs:
           rm -f ./ccache &
           
           echo "正在克隆源码仓库..." &&
-          aria2c -s16 -x16 -k1M https://github.com/ESK-Project/android12-5.10-gki/archive/refs/heads/main.zip -o common.zip && 
+          aria2c -s16 -x16 -k1M https://github.com/Syncony/android12-5.10-gki/archive/refs/heads/main.zip -o common.zip && 
           unzip -q common.zip && 
           mv "android12-5.10-gki-main" common &&
           rm -rf common.zip &
@@ -378,8 +378,8 @@ jobs:
           #删除-fno-integrated-as强制检查
           sed -i 's/-fno-integrated-as//' scripts/Kconfig.include &
           
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD="ld.lld" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error gki_defconfig &&
-          make -j$(nproc --all) LLVM=1 ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD="ld.lld" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error Image
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 KBUILD_BUILD_TIMESTAMP="Mon Apr 12 12:00:00 CST 2026" CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD="ld.lld" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error gki_defconfig &&
+          make -j$(nproc --all) LLVM=1 ARCH=arm64 KBUILD_BUILD_TIMESTAMP="Mon Apr 12 12:00:00 CST 2026" CROSS_COMPILE=aarch64-linux-gnu- CC="ccache clang" LD="ld.lld" HOSTLD=ld.lld O=out KCFLAGS+=-O2 KCFLAGS+=-Wno-error Image
 
           echo "内核编译完成！"
           echo "ccache状态："
@@ -406,28 +406,6 @@ jobs:
             exit 1
           fi
           zip -r ../AnyKernel3.zip ./*
-
-      - name: 上传到 Telegram
-        env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-          BOT_CI_SESSION: ${{ secrets.BOT_CI_SESSION }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          STOCK_CONFIG: ${{ inputs.stock_config }}
-          UNSHARE: ${{ inputs.unshare }}
-          LXC: ${{ inputs.lxc }}
-          LTO: ${{ inputs.lto }}
-          DROIDSPACES: ${{ inputs.droidspaces }}
-          BBG: ${{ inputs.baseband_guard }}
-          MOUNTIFY: ${{ inputs.tmpfs }}
-          BETTER_NET: ${{ inputs.better_net }}
-        run: |
-          if [ -z ${{ secrets.BOT_TOKEN }} ]; then
-            exit 0
-          fi
-          pip3 install telethon
-          curl -fLSs "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/.github/bot.py" -o bot.py
-          python3 bot.py ./kernel_workspace/AnyKernel3.zip
 
       - name: 上传 Ccache 调试日志
         if: always() && inputs.ccache_debug
